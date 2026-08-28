@@ -1,6 +1,6 @@
 #!/bin/bash
 USERNAME="juliebenchuk"
-IMAGE="nest-api-image"
+IMAGE="backend"
 GIT_SHA=$(git rev-parse --short HEAD)
 
 docker build -t $USERNAME/$IMAGE:$GIT_SHA .
