@@ -1,8 +1,8 @@
 # builder
-FROM node:20-alpine AS builder
+FROM node:24-alpine AS builder
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+COPY package*.json ./
 RUN npm ci
 
 #Никаких ENV NODE_ENV=production, ENV PORT=3000
@@ -17,13 +17,13 @@ RUN npm run build
 RUN npm prune --omit=dev
 
 # runner
-FROM node:20-alpine AS runner
+FROM node:24-alpine AS runner
 WORKDIR /app
 
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/dist ./dist
 # Node читает из package.json поле "type" и метаданные при запуске
 COPY --from=builder /app/package.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
 
 EXPOSE 3000
 # важно использовать именно CMD - exec-форма, чтобы Node стал PID 1 и получал сигналы SIGTERM напрямую от Docker
