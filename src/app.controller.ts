@@ -8,6 +8,7 @@ export class AppController {
     const { rows } = await pool.query(
         'SELECT id, title, done FROM tasks ORDER BY id',
     );
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return rows;
   }
 }
