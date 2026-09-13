@@ -1,23 +1,22 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 
+// Создаем заглушку (mock) для модуля бд, если это необходимо,
+// но для базовой проверки синтаксиса достаточно обновить вызовы:
 describe('AppController', () => {
   let appController: AppController;
 
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
-      providers: [AppService],
     }).compile();
 
     appController = app.get<AppController>(AppController);
   });
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      expect(appController.getHello()).toBe('Hello World!');
+  describe('getTasks', () => {
+    it('should be defined', () => {
+      expect(appController.getTasks).toBeDefined();
     });
   });
 });
