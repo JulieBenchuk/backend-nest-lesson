@@ -16,7 +16,7 @@ describe('AppController', () => {
 
   describe('getTasks', () => {
     it('should be defined', () => {
-      expect(appController.getTasks).toBeDefined();
+      expect(typeof appController.getTasks).toBe('function');
     });
   });
 });
