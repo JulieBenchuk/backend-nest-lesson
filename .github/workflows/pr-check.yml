@@ -16,10 +16,11 @@ jobs:
         # Назвали как захотели. node-version, experimental, os - это просто имя переменной:
         node-version: [20, 22, 24]
         experimental: [false]
-        os: ['ubuntu-latest', 'windows-latest']
+        os: [ubuntu-latest, windows-latest]
         include:
           - node-version: 24
             experimental: true
+            os: windows-latest
 
     steps:
       - uses: actions/checkout@v4
