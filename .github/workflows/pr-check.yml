@@ -8,6 +8,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.experimental }}
     strategy:
       fail-fast: false
       matrix:
@@ -15,7 +16,6 @@ jobs:
         include:
           - node-version: 24
             experimental: true
-      continue-on-error: ${{ matrix.experimental }}
 
     steps:
       - uses: actions/checkout@v4
