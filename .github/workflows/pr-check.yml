@@ -7,13 +7,16 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    # Главное — правильно сослаться на это имя:
     continue-on-error: ${{ matrix.experimental }}
     strategy:
       fail-fast: false
       matrix:
-        node-version: [18, 20, 22, 24]
+        # Назвали как захотели. node-version, experimental, os - это просто имя переменной:
+        node-version: [20, 22, 24]
         experimental: [false]
+        os: [ubuntu-latest, windows-latest]
         include:
           - node-version: 24
             experimental: true
@@ -22,6 +25,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
+          # Главное — правильно сослаться на это имя:
           node-version: ${{ matrix.node-version }}
 
       - name: Установка зависимостей
