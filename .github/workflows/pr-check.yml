@@ -17,10 +17,15 @@ jobs:
         node-version: [22, 24]
         experimental: [false]
         os: [ubuntu-latest, windows-latest]
+        # Дополнительная джоба к существующей матрице
         include:
           - node-version: 24
             experimental: true
             os: windows-latest
+        # Исключить из матрицы джобу
+        exclude:
+          - os: windows-latest
+            node-version: 24
 
     steps:
       - uses: actions/checkout@v4
@@ -28,6 +33,7 @@ jobs:
         with:
           # Главное — правильно сослаться на это имя:
           node-version: ${{ matrix.node-version }}
+          cache: 'npm'
 
       - name: Установка зависимостей
         run: npm ci
