@@ -36,7 +36,7 @@ jobs:
           # что кэшировать
           path: node_modules
           # уникальный ключ, с учетом ОС
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('package-lock.json') }}
           # если точного совпадения нет, берётся последний кэш с совпадающим префиксом (частичное восстановление)
           restore-keys: |
               ${{ runner.os }}-node-
