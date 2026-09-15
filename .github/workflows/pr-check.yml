@@ -39,7 +39,7 @@ jobs:
           key: ${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('package-lock.json') }}
           # если точного совпадения нет, берётся последний кэш с совпадающим префиксом (частичное восстановление)
           restore-keys: |
-              ${{ runner.os }}-node-
+              ${{ runner.os }}-node${{ matrix.node-version }}-
 
       - uses: actions/setup-node@v4
         with:
