@@ -6,7 +6,6 @@ on:
 jobs:
   notify:
     runs-on: ubuntu-latest
-    if: always()  # ← запускается всегда, даже если checks или deploy джобы упали
 
     steps:
       - name: Notify Telegram

@@ -57,3 +57,4 @@ jobs:
     # зависит от любых статусов этих джоб, будь то успех или фейл, будет дожидаться
     needs: [checks, build, deploy]
     uses: ./.github/workflows/notify.yml
+    if: always()  # ← запускается всегда, даже если checks или deploy джобы упали
