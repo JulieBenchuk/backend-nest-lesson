@@ -28,6 +28,7 @@ jobs:
             node-version: 22
 
     steps:
+      # скачивает репозиторий с кодом на виртуальную машину (раннер) GitHub Actions, где выполняется джоба
       - uses: actions/checkout@v4
 
       - name: Кэш node_modules
