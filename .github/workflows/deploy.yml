@@ -27,23 +27,4 @@ jobs:
 
   notify:
     needs: [checks, deploy]
-    runs-on: ubuntu-latest
-    if: always()  # ← запускается всегда, даже если checks или deploy джобы упали
-
-    steps:
-      - name: Notify Telegram
-        run: |
-          CHECKS="${{ needs.checks.result }}"
-          DEPLOY="${{ needs.deploy.result }}"
-          
-          if [ "$CHECKS" != "success" ]; then
-            TEXT="❌ Тесты упали%0A${{ github.repository }}, ветка @ ${{ github.ref_name }}%0AСмотри: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}.%0AАвтор: ${{ github.actor }}"
-          elif [ "$DEPLOY" != "success" ]; then
-            TEXT="❌ Деплой упал%0A${{ github.repository }}, ветка @ ${{ github.ref_name }}%0AСмотри: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}.%0AАвтор: ${{ github.actor }}"
-          else
-            TEXT="✅ Деплой успешен%0A${{ github.repository }}, ветка @ ${{ github.ref_name }}.%0AАвтор: ${{ github.actor }}"
-          fi
-          
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-            -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
-            -d "text=$TEXT"
+    uses: ./.github/workflows/notify.yml
