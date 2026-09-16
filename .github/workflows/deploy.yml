@@ -18,15 +18,15 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Вход в DockerHub
-        run: docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASS }}
+        run: docker login -u ${{ vars.DOCKER_USER }} -p ${{ secrets.DOCKER_PASS }}
 
       - name: Билд и пуш образа
         id: build-push
         # обявляем переменные, т.к. имя образа переиспользуется и чтобы проще его переименовать при необходимости
         # по умолчанию переменные env доступны только в своей джобе
         env:
-          IMAGE_SHA: ${{ secrets.DOCKER_USER }}/cluster_backend:sha-${{ github.sha }}
-          IMAGE_LATEST: ${{ secrets.DOCKER_USER }}/cluster_backend:latest
+          IMAGE_SHA: ${{ vars.DOCKER_USER }}/cluster_backend:sha-${{ github.sha }}
+          IMAGE_LATEST: ${{ vars.DOCKER_USER }}/cluster_backend:latest
         run: |
           docker build -t $IMAGE_SHA -t $IMAGE_LATEST .
           
