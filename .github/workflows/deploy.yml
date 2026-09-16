@@ -20,6 +20,7 @@ jobs:
 
       - name: Билд и пуш образа
         # обявляем переменные, т.к. имя образа переиспользуется и чтобы проще его переименовать при необходимости
+        # по умолчанию переменные env доступны только в своей джобе
         env:
           IMAGE_SHA: ${{ secrets.DOCKER_USER }}/cluster_backend:sha-${{ github.sha }}
           IMAGE_LATEST: ${{ secrets.DOCKER_USER }}/cluster_backend:latest
@@ -28,23 +29,31 @@ jobs:
           
           docker push $IMAGE_SHA
           docker push $IMAGE_LATEST
+          
+          # Передача данных между шагами или джобами в рамках одного пайплайна
+          # Формирует строку формата ключ=значение. Перенаправляет эту строку в секретный временный файл, путь к которому хранится в системной переменной $GITHUB_OUTPUT.
+          echo "image_sha=$IMAGE_SHA" >> $GITHUB_OUTPUT
 
-#  deploy:
-#    needs: checks
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Deploy via SSH
-#        uses: appleboy/ssh-action@v1.0.3
-#        with:
-#          host: ${{ secrets.SSH_HOST }}
-#          username: ${{ secrets.SSH_USER }}
-#          key: ${{ secrets.SSH_PRIVATE_KEY }}
-#          script: |
-#            cd /var/www/cluster/backend
-#            git pull origin main
-#            cd /var/www/cluster
-#            docker compose up --build -d backend
+  deploy:
+    needs: checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /var/www/cluster
+            
+            # Берём имя образа из output предыдущего job'а, не дублируем. И подставляем в энв взамен предыдущего значения
+            sed -i "s|DOCKER_IMAGE=.*|DOCKER_IMAGE=${{ needs.build.outputs.image_sha }}|" .env
+            
+            # Перезапускаем только backend, не трогая frontend и db
+            docker compose up -d --no-deps backend
 
-#  notify:
-#    needs: [checks, deploy]
-#    uses: ./.github/workflows/notify.yml
+  notify:
+    # зависит от любых статусов этих джоб, будь то успех или фейл, будет дожидаться
+    needs: [checks, build, deploy]
+    uses: ./.github/workflows/notify.yml
