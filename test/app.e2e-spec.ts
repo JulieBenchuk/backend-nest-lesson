@@ -25,7 +25,7 @@ describe('AppController (e2e)', () => {
           expect(res.body).toEqual([
             { id: 1, title: 'Learn Docker', done: true },
             { id: 2, title: 'Learn Compose', done: true },
-            { id: 3, title: 'Learn networks', done: false }
+            { id: 3, title: 'Learn networks!', done: false }
           ]);
         });
   });
