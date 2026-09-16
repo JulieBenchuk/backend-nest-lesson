@@ -11,6 +11,8 @@ jobs:
   build:
     needs: [checks]
     runs-on: ubuntu-latest
+    outputs:
+      image_sha: ${{ steps.build-push.outputs.image_sha }}  # передаём в deploy по step id "build-push"
     steps:
       # скачивает репозиторий с кодом на виртуальную машину (раннер) GitHub Actions, где выполняется джоба
       - uses: actions/checkout@v4
@@ -19,6 +21,7 @@ jobs:
         run: docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASS }}
 
       - name: Билд и пуш образа
+        id: build-push
         # обявляем переменные, т.к. имя образа переиспользуется и чтобы проще его переименовать при необходимости
         # по умолчанию переменные env доступны только в своей джобе
         env:
@@ -35,7 +38,7 @@ jobs:
           echo "image_sha=$IMAGE_SHA" >> $GITHUB_OUTPUT
 
   deploy:
-    needs: checks
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - name: Deploy via SSH
@@ -54,7 +57,6 @@ jobs:
             docker compose up -d --no-deps backend
 
   notify:
-    # зависит от любых статусов этих джоб, будь то успех или фейл, будет дожидаться
     needs: [checks, build, deploy]
     uses: ./.github/workflows/notify.yml
     if: always()  # ← запускается всегда, даже если checks или deploy джобы упали
