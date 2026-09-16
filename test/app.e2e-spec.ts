@@ -18,9 +18,16 @@ describe('AppController (e2e)', () => {
 
   it('/tasks (GET)', () => {
     return request(app.getHttpServer())
-      .get('/tasks')
-      .expect(200)
-      .expect('Hello World!');
+        .get('/tasks')
+        .expect(200)
+        .expect((res) => {
+          // Проверяем структуру и наполнение ответа
+          expect(res.body).toEqual([
+            { id: 1, title: 'Learn Docker', done: true },
+            { id: 2, title: 'Learn Compose', done: true },
+            { id: 3, title: 'Learn networks', done: false }
+          ]);
+        });
   });
 
   afterEach(async () => {
