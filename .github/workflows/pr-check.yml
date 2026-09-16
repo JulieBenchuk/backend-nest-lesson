@@ -11,7 +11,7 @@ jobs:
     # Главное — правильно сослаться на это имя:
     continue-on-error: ${{ matrix.experimental }}
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         # Назвали как захотели. node-version, experimental, os - это просто имя переменной:
         node-version: [22]
