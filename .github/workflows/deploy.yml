@@ -6,6 +6,7 @@ on:
 
 jobs:
   checks:
+    # REUSABLE WORKFLOW
     uses: ./.github/workflows/pr-check.yml
 
   build:
@@ -58,8 +59,10 @@ jobs:
 
   notify:
     needs: [checks, build, deploy]
+    # REUSABLE WORKFLOW
     uses: ./.github/workflows/notify.yml
     if: always()  # ← запускается всегда, даже если checks или deploy джобы упали
+    # дочерний файл не имеет прямого доступа к секретам вашего основного репозитория
     secrets:
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
