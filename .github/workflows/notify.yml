@@ -33,7 +33,7 @@ jobs:
 
           if [ "$CHECKS" != "success" ]; then
             TEXT="❌ Тесты упали%0A${{ github.repository }}, ветка @ ${{ github.ref_name }}%0AСмотри: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}.%0AАвтор: ${{ github.actor }}"
-          elif [ "BUILD" != "success" ]; then
+          elif [ "$BUILD" != "success" ]; then
             TEXT="❌ Билд упал%0A${{ github.repository }}, ветка @ ${{ github.ref_name }}%0AСмотри: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}.%0AАвтор: ${{ github.actor }}"
           elif [ "$DEPLOY" != "success" ]; then
             TEXT="❌ Деплой упал%0A${{ github.repository }}, ветка @ ${{ github.ref_name }}%0AСмотри: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}.%0AАвтор: ${{ github.actor }}"
