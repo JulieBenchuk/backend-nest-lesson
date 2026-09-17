@@ -12,6 +12,7 @@ jobs:
   build:
     needs: [checks]
     runs-on: ubuntu-latest
+    # Создать у джобы build выходной параметр image_sha и записать в него то, что вернул шаг build-push в свой параметр image_sha (echo "image_sha=$IMAGE_SHA" >> $GITHUB_OUTPUT)
     outputs:
       image_sha: ${{ steps.build-push.outputs.image_sha }}  # передаём в deploy по step id "build-push"
     steps:
@@ -39,6 +40,7 @@ jobs:
           echo "image_sha=$IMAGE_SHA" >> $GITHUB_OUTPUT
 
   deploy:
+    # Это дает нам право читать аутпуты джобы build
     needs: [build]
     runs-on: ubuntu-latest
     steps:
@@ -51,7 +53,7 @@ jobs:
           script: |
             cd /var/www/cluster
             
-            # Берём имя образа из output предыдущего job'а, не дублируем. И подставляем в энв взамен предыдущего значения
+            # Берём имя образа из output предыдущего job'а, не дублируем. И подставляем в .env взамен предыдущего значения
             sed -i "s|DOCKER_IMAGE=.*|DOCKER_IMAGE=${{ needs.build.outputs.image_sha }}|" .env
             
             # Перезапускаем только backend, не трогая frontend и db
@@ -66,3 +68,8 @@ jobs:
     secrets:
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+    # Передаем итоговый статус в reusable workflow через with, там он будет виден в inputs
+    with:
+      checks_result: ${{ needs.checks.result }}
+      deploy_result: ${{ needs.deploy.result }}
+      build_status: ${{ needs.build.result }}

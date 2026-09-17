@@ -2,6 +2,17 @@ name: Notify
 
 on:
   workflow_call:
+    # Принимаем статус из родительского пайплайна в input
+    inputs:
+      checks_result:
+        required: true
+        type: string
+      deploy_result:
+        required: true
+        type: string
+      build_status:
+        required: true
+        type: string
     secrets:
       TELEGRAM_CHAT_ID:
         required: true
@@ -14,12 +25,16 @@ jobs:
 
     steps:
       - name: Notify Telegram
+        # используем переменные, переданные через with в input
         run: |
-          CHECKS="${{ needs.checks.result }}"
-          DEPLOY="${{ needs.deploy.result }}"
+          CHECKS="${{ inputs.checks_result }}"
+          DEPLOY="${{ inputs.deploy_result }}"
+          BUILD="${{ inputs.build_status }}"
 
           if [ "$CHECKS" != "success" ]; then
             TEXT="❌ Тесты упали%0A${{ github.repository }}, ветка @ ${{ github.ref_name }}%0AСмотри: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}.%0AАвтор: ${{ github.actor }}"
+          elif [ "BUILD" != "success" ]; then
+            TEXT="❌ Билд упал%0A${{ github.repository }}, ветка @ ${{ github.ref_name }}%0AСмотри: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}.%0AАвтор: ${{ github.actor }}"
           elif [ "$DEPLOY" != "success" ]; then
             TEXT="❌ Деплой упал%0A${{ github.repository }}, ветка @ ${{ github.ref_name }}%0AСмотри: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}.%0AАвтор: ${{ github.actor }}"
           else
