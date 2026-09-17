@@ -11,33 +11,13 @@ jobs:
 
   build:
     needs: [checks]
-    runs-on: ubuntu-latest
-    # Создать у джобы build выходной параметр image_sha и записать в него то, что вернул шаг build-push в свой параметр image_sha (echo "image_sha=$IMAGE_SHA" >> $GITHUB_OUTPUT)
-    outputs:
-      image_sha: ${{ steps.build-push.outputs.image_sha }}  # передаём в deploy по step id "build-push"
-    steps:
-      # скачивает репозиторий с кодом на виртуальную машину (раннер) GitHub Actions, где выполняется джоба
-      - uses: actions/checkout@v4
+    # REUSABLE WORKFLOW
+    uses: ./.github/workflows/build.yml
+    with:
+      DOCKER_USER: ${{ vars.DOCKER_USER }}
+    secrets:
+      DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
 
-      - name: Вход в DockerHub
-        run: docker login -u ${{ vars.DOCKER_USER }} -p ${{ secrets.DOCKER_PASS }}
-
-      - name: Билд и пуш образа
-        id: build-push
-        # обявляем переменные, т.к. имя образа переиспользуется и чтобы проще его переименовать при необходимости
-        # по умолчанию переменные env доступны только в своей джобе
-        env:
-          IMAGE_SHA: ${{ vars.DOCKER_USER }}/cluster_backend:sha-${{ github.sha }}
-          IMAGE_LATEST: ${{ vars.DOCKER_USER }}/cluster_backend:latest
-        run: |
-          docker build -t $IMAGE_SHA -t $IMAGE_LATEST .
-          
-          docker push $IMAGE_SHA
-          docker push $IMAGE_LATEST
-          
-          # Передача данных между шагами или джобами в рамках одного пайплайна
-          # Формирует строку формата ключ=значение. Перенаправляет эту строку в секретный временный файл, путь к которому хранится в системной переменной $GITHUB_OUTPUT.
-          echo "image_sha=$IMAGE_SHA" >> $GITHUB_OUTPUT
 
   deploy:
     # Это дает нам право читать аутпуты джобы build
@@ -53,10 +33,10 @@ jobs:
           script: |
             cd /var/www/cluster
             
-            # Берём имя образа из output предыдущего job, не дублируем. И подставляем в .env взамен предыдущего значения
+            # Берём имя образа из output предыдущего build job. И подставляем в .env взамен предыдущего значения DOCKER_IMAGE
             sed -i "s|DOCKER_IMAGE=.*|DOCKER_IMAGE=${{ needs.build.outputs.image_sha }}|" .env
             
-            # Перезапускаем только backend, не трогая frontend и db
+            # Перезапускаем только backend c новым DOCKER_IMAGE=username/backend:sha-a3f9c12 в .env на сервере
             docker compose up -d --no-deps backend
 
   notify:
