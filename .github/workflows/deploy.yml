@@ -36,6 +36,9 @@ jobs:
             # Берём имя образа из output предыдущего build job. И подставляем в .env взамен предыдущего значения DOCKER_IMAGE
             sed -i "s|DOCKER_IMAGE=.*|DOCKER_IMAGE=${{ needs.build.outputs.image_sha }}|" .env
             
+            # Скачиваем обновленный образ с Docker Hub 
+            docker compose pull backend
+            
             # Перезапускаем только backend c новым DOCKER_IMAGE=username/backend:sha-a3f9c12 в .env на сервере
             docker compose up -d --no-deps backend
 
