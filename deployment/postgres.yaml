@@ -12,11 +12,12 @@ spec:
         - containerPort: 5432
       env:
         - name: POSTGRES_DB
-          value: "myapp"
+          value: "todos"
         - name: POSTGRES_USER
-          value: "myapp_user"
+          value: "todos_user"
         - name: POSTGRES_PASSWORD
           value: "change_me_please"
+
 ---
 apiVersion: v1
 kind: Service
