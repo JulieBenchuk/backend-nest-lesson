@@ -12,11 +12,20 @@ spec:
         - containerPort: 5432
       env:
         - name: POSTGRES_DB
-          value: "todos"
+          valueFrom:
+            configMapKeyRef:
+              name: backend-config
+              key: DB_NAME
         - name: POSTGRES_USER
-          value: "todos_user"
+          valueFrom:
+            secretKeyRef:
+              name: backend-secret
+              key: DB_USER
         - name: POSTGRES_PASSWORD
-          value: "change_me_please"
+          valueFrom:
+            secretKeyRef:
+              name: backend-secret
+              key: DB_PASSWORD
 
 ---
 apiVersion: v1

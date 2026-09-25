@@ -12,6 +12,10 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
+# Deployment
+/deployment/secret.yaml
+/deployment/dockerhub-secret.yaml
+
 # OS
 .DS_Store
 

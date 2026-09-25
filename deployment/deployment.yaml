@@ -12,19 +12,16 @@ spec:
       labels:
         app: backend-api
     spec:
+      # Kubernetes возьмёт этот imagePullSecrets и подставит токен при скачивании приватного образа. Сам контейнер об этом ничего не знает
+      imagePullSecrets:
+        - name: dockerhub-cred
       containers:
         - name: backend-api
           image: juliebenchuk/cluster_backend:sha-727c6a621a71bf078b1d85659041826efa452112
           ports:
             - containerPort: 3000
-          env:
-            - name: DB_HOST
-              value: "postgres.default.svc.cluster.local"
-            - name: DB_PORT
-              value: "5432"
-            - name: DB_USER
-              value: "todos_user"
-            - name: DB_PASSWORD
-              value: "change_me_please"
-            - name: DB_NAME
-              value: "todos"
+          envFrom:
+            - configMapRef:
+                name: backend-config
+            - secretRef:
+                name: backend-secret
