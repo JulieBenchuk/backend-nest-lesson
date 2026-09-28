@@ -1,0 +1,50 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  checks:
+    # REUSABLE WORKFLOW
+    uses: ./.github/workflows/pr-check.yml
+
+  build:
+    needs: [checks]
+    # REUSABLE WORKFLOW
+    uses: ./.github/workflows/build.yml
+    with:
+      DOCKER_USER: ${{ vars.DOCKER_USER }}
+    secrets:
+      DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
+
+  deploy:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure kubectl
+        # на раннере гитхаб создается папка и в нее помещается конфиг с секретом KUBE_CONFIG
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
+        # Первая команда только дает кластеру (manifests/backend.yaml) команду «обнови образ контейнера» и сразу завершает работу, не дожидаясь реального запуска новых подов.
+        # Вторая команда как раз выступает в роли «предохранителя» - отслеживает процесс деплоя приложения в Kubernetes и ждет, пока он успешно завершится.
+      - name: Deploy to k3s
+        run: |
+          kubectl set image deployment/backend-api backend-api=${{ needs.build.outputs.image_sha }}
+          kubectl rollout status deployment/backend-api --timeout=120s
+
+  notify:
+    needs: [checks, build, deploy]
+    # REUSABLE WORKFLOW
+    uses: ./.github/workflows/notify.yml
+    if: always()  # ← запускается всегда, даже если checks или deploy джобы упали
+    # дочерний файл не имеет прямого доступа к секретам вашего основного репозитория
+    secrets:
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+    # Передаем итоговый статус в reusable workflow через with, там он будет виден в inputs
+    with:
+      checks_result: ${{ needs.checks.result }}
+      deploy_result: ${{ needs.deploy.result }}
+      build_status: ${{ needs.build.result }}

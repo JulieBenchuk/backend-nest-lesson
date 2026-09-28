@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: backend-api
+  template:
+    metadata:
+      labels:
+        app: backend-api
+    spec:
+      # Kubernetes возьмёт этот imagePullSecrets и подставит токен при скачивании приватного образа. Сам контейнер об этом ничего не знает
+      imagePullSecrets:
+        - name: dockerhub-cred
+      containers:
+        - name: backend-api
+          image: juliebenchuk/cluster_backend:sha-470d1c9385d0488fa0cf1dd0ad230482ff5e9849
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: backend-config
+            - secretRef:
+                name: backend-secret
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-api-service
+spec:
+  selector:
+    app: backend-api
+  ports:
+    - port: 3000
+      targetPort: 3000
+  type: ClusterIP
