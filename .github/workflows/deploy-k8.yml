@@ -36,6 +36,7 @@ jobs:
           IMAGE: ${{ needs.build.outputs.image_sha }}
         # envsubst читает manifests/backend.yaml, заменяет ${IMAGE} на реальное значение переменной и передаёт результат в kubectl apply.
         # В репозиторий ничего не коммитится — в кластер уходит актуальный манифест с конкретным SHA.
+        # annotate добавляет описание к истории ревизий в виде sha, иначе там будет <none>
         run: |
           envsubst < manifests/backend.yaml | kubectl apply -f -
           kubectl annotate deployment/backend-api kubernetes.io/change-cause="sha-${{ github.sha}}" --overwrite
