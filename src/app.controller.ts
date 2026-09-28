@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { pool } from './db';
 
-@Controller('taskss')
+@Controller('tasks')
 export class AppController {
   @Get()
   async getTasks() {

@@ -30,9 +30,13 @@ jobs:
         # Первая команда только дает кластеру (manifests/backend.yaml) команду «обнови образ контейнера» и сразу завершает работу, не дожидаясь реального запуска новых подов.
         # Вторая команда как раз выступает в роли «предохранителя» - отслеживает процесс деплоя приложения в Kubernetes и ждет, пока он успешно завершится.
       - name: Deploy to k3s
+        env:
+          IMAGE: ${{ needs.build.outputs.image_sha }}
+        # envsubst читает k8s/backend.yaml, заменяет ${IMAGE} на реальное значение переменной и передаёт результат в kubectl apply.
+        # В репозиторий ничего не коммитится — в кластер уходит актуальный манифест с конкретным SHA.
         run: |
-          kubectl set image deployment/backend-api backend-api=${{ needs.build.outputs.image_sha }}
-          kubectl rollout status deployment/backend-api --timeout=120s
+            envsubst < k8s/backend.yaml | kubectl apply -f -
+            kubectl rollout status deployment/backend-api --timeout=120s
 
   notify:
     needs: [checks, build, deploy]
