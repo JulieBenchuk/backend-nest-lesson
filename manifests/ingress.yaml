@@ -9,10 +9,10 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - k8s.julie-benchuk-dev.xyz
+        - k8s-api.julie-benchuk-dev.xyz
       secretName: backend-api-tls
   rules:
-    - host: k8s.julie-benchuk-dev.xyz
+    - host: k8s-api.julie-benchuk-dev.xyz
       http:
         paths:
           - path: /
