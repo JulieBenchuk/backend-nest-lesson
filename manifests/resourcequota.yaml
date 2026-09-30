@@ -1,0 +1,17 @@
+# ResourceQuota ограничивает суммарные ресурсы всего namespace — защищает кластер от одной команды или сервиса, захватившего всё.
+
+# При включённой ResourceQuota все Pod-ы в namespace обязаны указывать resources. Pod без resources не создастся.
+# Решение: сначала создайте LimitRange с дефолтами — тогда Pod-ы без явных resources получат дефолты автоматически.
+
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: namespace-quota
+  namespace: default  # только для этого namespace
+spec:
+  hard:
+    requests.cpu: "4"
+    requests.memory: "4Gi"
+    limits.cpu: "8"
+    limits.memory: "8Gi"
+    pods: "20"

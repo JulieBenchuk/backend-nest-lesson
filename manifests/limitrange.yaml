@@ -1,0 +1,20 @@
+# Если Pod создан без resources — он становится BestEffort и Scheduler не знает что планировать.
+# LimitRange задаёт дефолтные значения для всех container в namespace автоматически.
+
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: default-limits
+  namespace: default # только для этого namespace
+spec:
+  limits:
+    - type: Container
+      default:          # применяется если limits не указан
+        cpu: "500m"
+        memory: "256Mi"
+      defaultRequest:   # применяется если requests не указан
+        cpu: "100m"
+        memory: "128Mi"
+      max:              # Pod не может запросить больше
+        cpu: "2"
+        memory: "1Gi"
