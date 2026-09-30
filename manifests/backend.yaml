@@ -31,10 +31,13 @@ apiVersion: v1
 kind: Service
 metadata:
   name: backend-api-service
+  labels:
+    app: backend-api   # ← лейбл для ServiceMonitor
 spec:
   selector:
     app: backend-api
   ports:
-    - port: 3000
+    - name: http   # ← именованный порт
+      port: 3000
       targetPort: 3000
   type: ClusterIP
