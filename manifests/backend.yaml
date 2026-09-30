@@ -18,6 +18,15 @@ spec:
       containers:
         - name: backend-api
           image: ${IMAGE}
+          # Типичная рекомендация — ставить limit на ~20% выше request.
+          resources:
+            requests:
+              # CPU измеряется в миллиядрах (m). 1000m = 1 ядро CPU.
+              cpu: "80m"
+              memory: "100Mi"
+            limits:
+              cpu: "100m"
+              memory: "120Mi"
           ports:
             - containerPort: 3000
           envFrom:
