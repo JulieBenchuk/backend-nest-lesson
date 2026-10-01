@@ -29,27 +29,27 @@ spec:
               memory: "120Mi"
           ports:
             - containerPort: 3000
-              startupProbe:
-                httpGet:
-                  path: /api/health
-                  port: 3000
-                periodSeconds: 5        # интервал между проверками (сек)
-                timeoutSeconds: 3       # таймаут одной проверки (сек)
-                failureThreshold: 12    # 12 попыток × 5 сек = 1 минута на старт
-              livenessProbe:
-                  httpGet:
-                    path: /api/health
-                    port: 3000
-                  initialDelaySeconds: 0  # ждать перед первой проверкой (сек)
-                  periodSeconds: 15
-                  failureThreshold: 3
-              readinessProbe:
-                  httpGet:
-                    path: /api/ready
-                    port: 3000
-                  initialDelaySeconds: 0
-                  periodSeconds: 10
-                  failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            periodSeconds: 5        # интервал между проверками (сек)
+            timeoutSeconds: 3       # таймаут одной проверки (сек)
+            failureThreshold: 12    # 12 попыток × 5 сек = 1 минута на старт
+          livenessProbe:
+              httpGet:
+                path: /api/health
+                port: 3000
+              initialDelaySeconds: 0  # ждать перед первой проверкой (сек)
+              periodSeconds: 15
+              failureThreshold: 3
+          readinessProbe:
+              httpGet:
+                path: /api/ready
+                port: 3000
+              initialDelaySeconds: 0
+              periodSeconds: 10
+              failureThreshold: 3
           envFrom:
             - configMapRef:
                 name: backend-config
