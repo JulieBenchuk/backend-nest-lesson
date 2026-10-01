@@ -38,7 +38,7 @@ spec:
             failureThreshold: 12    # 12 попыток × 5 сек = 1 минута на старт
           livenessProbe:
               httpGet:
-                path: /health
+                path: /not-health
                 port: 3000
               initialDelaySeconds: 0  # ждать перед первой проверкой (сек)
               periodSeconds: 15
