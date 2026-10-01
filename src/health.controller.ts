@@ -12,9 +12,9 @@ export class HealthController {
         try {
             /*await pool.query('SELECT 1');
             return 'ready';*/
-            throw new HttpException('not ready', HttpStatus.SERVICE_UNAVAILABLE) // 503
+            await throw new HttpException('not ready', HttpStatus.SERVICE_UNAVAILABLE) // 503
         } catch {
-            throw new HttpException('not ready', HttpStatus.SERVICE_UNAVAILABLE) // 503
+            await throw new HttpException('not ready', HttpStatus.SERVICE_UNAVAILABLE) // 503
         }
     }
 }
