@@ -8,13 +8,13 @@ export class HealthController {
     }
 
     @Get('/ready')
-    async getReady(): Promise<string> {
-        try {
-            /*await pool.query('SELECT 1');
-            return 'ready';*/
-            await throw new HttpException('not ready', HttpStatus.SERVICE_UNAVAILABLE) // 503
-        } catch {
-            await throw new HttpException('not ready', HttpStatus.SERVICE_UNAVAILABLE) // 503
-        }
+    getReady(): Promise<string> {
+        throw new HttpException('not ready', HttpStatus.SERVICE_UNAVAILABLE) // 503
+        // try {
+        //     await pool.query('SELECT 1');
+        //     return 'ready';
+        // } catch {
+        //     throw new HttpException('not ready', HttpStatus.SERVICE_UNAVAILABLE) // 503
+        // }
     }
 }
