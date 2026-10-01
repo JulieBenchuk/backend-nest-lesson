@@ -17,11 +17,6 @@ jobs:
         node-version: [22]
         experimental: [false]
         os: [ubuntu-latest, windows-latest]
-        # Дополнительная джоба к существующей матрице
-        include:
-          - node-version: 24
-            experimental: true
-            os: windows-latest
         # Исключить из матрицы джобу
         exclude:
           - os: windows-latest
