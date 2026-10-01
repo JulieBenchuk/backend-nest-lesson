@@ -1,7 +1,7 @@
 import {Controller, Get, HttpException, HttpStatus} from '@nestjs/common';
 import { pool } from './db';
 
-@Controller('api')
+@Controller()
 export class HealthController {
     @Get('/health')
      getHealth(): string {
