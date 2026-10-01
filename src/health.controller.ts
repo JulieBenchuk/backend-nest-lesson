@@ -1,15 +1,20 @@
-import { Controller, Get } from '@nestjs/common';
+import {Controller, Get, HttpException, HttpStatus} from '@nestjs/common';
 import { pool } from './db';
 
-@Controller('api/health')
+@Controller('api')
 export class HealthController {
-    @Get()
-    async getHealth() {
+    @Get('/health')
+     getHealth(): string {
+            return 'success';
+    }
+
+    @Get('/ready')
+    async getReady(): Promise<string> {
         try {
             await pool.query('SELECT 1');
-            return { status: 'ok', db: 'up' };
+            return 'success';
         } catch {
-            return { status: 'degraded', db: 'down' };
+            throw new HttpException('not ready', HttpStatus.SERVICE_UNAVAILABLE) // 503
         }
     }
 }
