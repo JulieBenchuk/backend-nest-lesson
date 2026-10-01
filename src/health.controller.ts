@@ -1,5 +1,4 @@
 import {Controller, Get, HttpException, HttpStatus} from '@nestjs/common';
-import { pool } from './db';
 
 @Controller()
 export class HealthController {
@@ -11,8 +10,9 @@ export class HealthController {
     @Get('/ready')
     async getReady(): Promise<string> {
         try {
-            await pool.query('SELECT 1');
-            return 'success';
+            /*await pool.query('SELECT 1');
+            return 'ready';*/
+            throw new HttpException('not ready', HttpStatus.SERVICE_UNAVAILABLE) // 503
         } catch {
             throw new HttpException('not ready', HttpStatus.SERVICE_UNAVAILABLE) // 503
         }
