@@ -1,0 +1,8 @@
+# Default values for postgres.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+image: postgres:16-alpine
+storage: 1Gi
+
+# dbUser и dbPassword — секреты. Их нет в values.yaml. Передаём через --set при установке.
