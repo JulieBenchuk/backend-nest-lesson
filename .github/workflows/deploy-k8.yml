@@ -29,18 +29,39 @@ jobs:
         run: |
           mkdir -p ~/.kube
           echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
-        # Первая команда только дает кластеру (manifests/backend.yaml) команду «обнови образ контейнера» и сразу завершает работу, не дожидаясь реального запуска новых подов.
-        # Третья команда как раз выступает в роли «предохранителя» - отслеживает процесс деплоя приложения в Kubernetes и ждет, пока он успешно завершится.
-      - name: Deploy to k3s
+
+      # =========================================================================
+      # ПОДХОД 1: СТАРЫЙ ДЕПЛОЙ ЧЕРЕЗ СЫРЫЕ МАНИФЕСТЫ (Закомментирован для истории)
+      # =========================================================================
+      # - name: Deploy to k3s (Old Way)
+      #   env:
+      #     IMAGE: \${{ needs.build.outputs.image_sha }}
+      #   # envsubst читает manifests/backend.yaml, заменяет \${IMAGE} на реальное значение переменной и передаёт результат в kubectl apply.
+      #   # В репозиторий ничего не коммитится — в кластер уходит актуальный манифест с конкретным SHA.
+      #   # annotate добавляет описание к истории ревизий в виде sha, иначе там будет <none>
+      #   run: |
+      #     envsubst < manifests/backend.yaml | kubectl apply -f -
+      #     kubectl annotate deployment/backend-api kubernetes.io/change-cause="sha-\${{ github.sha}}" --overwrite
+      #     kubectl rollout status deployment/backend-api --timeout=120s
+
+      # =========================================================================
+      # ПОДХОД 2: НОВЫЙ ДЕПЛОЙ ЧЕРЕЗ HELM CHARTS (Активный подход)
+      # =========================================================================
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
+      - name: Deploy with Helm
         env:
-          IMAGE: ${{ needs.build.outputs.image_sha }}
-        # envsubst читает manifests/backend.yaml, заменяет ${IMAGE} на реальное значение переменной и передаёт результат в kubectl apply.
-        # В репозиторий ничего не коммитится — в кластер уходит актуальный манифест с конкретным SHA.
-        # annotate добавляет описание к истории ревизий в виде sha, иначе там будет <none>
+          IMAGE_TAG: ${{ needs.build.outputs.image_sha }}
+        # Имя релиза: backend-api, Путь к чарту: ./helm/backend-api
         run: |
-          envsubst < manifests/backend.yaml | kubectl apply -f -
-          kubectl annotate deployment/backend-api kubernetes.io/change-cause="sha-${{ github.sha}}" --overwrite
-          kubectl rollout status deployment/backend-api --timeout=120s
+          helm upgrade backend-api ./helm/backend-api \
+            --install \
+            --reuse-values \
+            --set image.name="\$IMAGE_TAG" \
+            --wait \
+            --timeout 4m
+
 
   notify:
     needs: [checks, build, deploy]

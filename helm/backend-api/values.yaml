@@ -1,0 +1,35 @@
+# Default values for backend-api.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+image:
+  name: juliebenchuk/cluster_backend:latest
+  pullSecret: dockerhub-cred
+
+backend:
+  port: 3000
+
+resources:
+  requests:
+    cpu: "60m"
+    memory: "100Mi"
+  limits:
+    cpu: "100m"
+    memory: "120Mi"
+
+config:
+  NODE_ENV: "production"
+  DB_HOST: "postgres-0.postgres.default.svc.cluster.local"
+  DB_PORT: "5432"
+  DB_NAME: "todos"
+
+ingress:
+  host: k8s-api.julie-benchuk-dev.xyz
+  tlsSecret: backend-api-tls
+  clusterIssuer: letsencrypt-prod
+
+hpa:
+  minReplicas: 1
+  maxReplicas: 5
+  cpuUtilization: 70
+  memoryUtilization: 80
