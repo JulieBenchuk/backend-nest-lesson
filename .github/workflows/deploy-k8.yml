@@ -58,7 +58,7 @@ jobs:
           helm upgrade backend-api ./helm/backend-api \
             --install \
             --reuse-values \
-            --set image.name="\$IMAGE_TAG" \
+            --set image.name="$IMAGE_TAG" \
             --wait \
             --timeout 4m
 
