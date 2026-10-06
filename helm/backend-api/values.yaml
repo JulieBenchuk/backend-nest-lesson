@@ -21,7 +21,7 @@ config:
   NODE_ENV: "production"
   DB_HOST: "postgres-0.postgres.default.svc.cluster.local"
   DB_PORT: "5432"
-  # DB_NAME: "todos"
+  DB_NAME: "todos"
 
 ingress:
   host: k8s-api.julie-benchuk-dev.xyz
