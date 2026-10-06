@@ -7,4 +7,4 @@ data:
   NODE_ENV: {{ .Values.config.NODE_ENV | quote }}
   DB_HOST: {{ .Values.config.DB_HOST | quote }}
   DB_PORT: {{ .Values.config.DB_PORT | quote }}
-  # DB_NAME: {{ .Values.config.DB_NAME | quote }}
+  DB_NAME: {{ .Values.config.DB_NAME | quote }}
