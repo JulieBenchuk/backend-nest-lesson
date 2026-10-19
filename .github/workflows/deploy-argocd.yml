@@ -104,19 +104,3 @@ jobs:
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/${{ inputs.gitops_repo }}/pulls/$PR_NUMBER/merge \
             -d '{"merge_method": "squash"}'
-
-  sync-argocd:
-    needs: [update-helm-chart]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Install ArgoCD CLI & Sync
-        env:
-          ARGOCD_AUTH_TOKEN: ${{ secrets.argocd_auth_token }}
-          ARGOCD_SERVER: ${{ inputs.argocd_server }}
-        run: |
-          curl -sSL -o /usr/local/bin/argocd \
-            https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
-          chmod +x /usr/local/bin/argocd
-          
-          argocd app sync ${{ inputs.argocd_app_name }} --insecure
-          argocd app wait ${{ inputs.argocd_app_name }} --insecure
