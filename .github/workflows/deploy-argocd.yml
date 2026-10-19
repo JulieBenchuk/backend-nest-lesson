@@ -69,10 +69,31 @@ jobs:
           git commit -m "feat(${{ inputs.argocd_app_name }}): update image to ${{ inputs.image_name }}"
           git push origin "$BRANCH_NAME"
 
+#      - name: Create and merge Pull Request
+#        run: |
+#          response=$(curl -sX POST \
+#            -H "Authorization: Bearer ${{ secrets.gitops_token }}" \
+#            -H "Accept: application/vnd.github.v3+json" \
+#            https://api.github.com/repos/${{ inputs.gitops_repo }}/pulls \
+#            -d "{
+#              \"title\": \"[${{ inputs.argocd_app_name }}] Update image to ${{ inputs.image_name }}\",
+#              \"body\": \"Automated update of image tag.\",
+#              \"head\": \"update-image-${{ github.run_id }}\",
+#              \"base\": \"${{ inputs.branch }}\"
+#            }")
+#
+#          PR_NUMBER=$(echo "$response" | python3 -c "import sys,json; print(json.load(sys.stdin)['number'])")
+#
+#          curl -sX PUT \
+#            -H "Authorization: Bearer ${{ secrets.gitops_token }}" \
+#            -H "Accept: application/vnd.github.v3+json" \
+#            https://api.github.com/repos/${{ inputs.gitops_repo }}/pulls/$PR_NUMBER/merge \
+#            -d '{"merge_method": "squash"}'
       - name: Create and merge Pull Request
         run: |
+          # 1. Отправляем запрос на создание PR (Bearer заменен на token)
           response=$(curl -sX POST \
-            -H "Authorization: Bearer ${{ secrets.gitops_token }}" \
+            -H "Authorization: token ${{ secrets.gitops_token }}" \
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/${{ inputs.gitops_repo }}/pulls \
             -d "{
@@ -82,10 +103,23 @@ jobs:
               \"base\": \"${{ inputs.branch }}\"
             }")
           
-          PR_NUMBER=$(echo "$response" | python3 -c "import sys,json; print(json.load(sys.stdin)['number'])")
+          # 2. Выводим ответ в логи для отладки
+          echo "GitHub API Response:"
+          echo "$response"
           
+          # 3. Безопасно достаем номер пул-реквеста
+          PR_NUMBER=$(echo "$response" | python3 -c "import sys,json; print(json.load(sys.stdin).get('number', ''))")
+          
+          if [ -z "$PR_NUMBER" ]; then
+            echo "Error: Pull Request was not created. Check the API response above."
+            exit 1
+          fi
+          
+          echo "Successfully created PR #$PR_NUMBER. Merging..."
+          
+          # 4. Вливаем пул-реквест (Bearer также заменен на token)
           curl -sX PUT \
-            -H "Authorization: Bearer ${{ secrets.gitops_token }}" \
+            -H "Authorization: token ${{ secrets.gitops_token }}" \
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/${{ inputs.gitops_repo }}/pulls/$PR_NUMBER/merge \
             -d '{"merge_method": "squash"}'
