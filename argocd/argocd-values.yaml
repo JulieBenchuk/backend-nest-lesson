@@ -4,9 +4,15 @@ applicationSet:
 configs:
   cm:
     accounts.image-updater: apiKey
+    accounts.github-actions: apiKey
+    accounts.github-actions.enabled: "true"
+    accounts.github-actions.policies: "p, github-actions, applications, *, *, allow"
     helm.valuesFileSchemes: >-
       secrets+gpg-import, secrets+gpg-import-kubernetes, secrets+age-import,
       secrets+age-import-kubernetes, secrets, secrets+literal, https
+  rbac:
+    policy.csv: |
+      p, github-actions, applications, *, *, allow
 
 controller:
   replicas: 1

@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy with Helm Chart
 
 on:
   push:
@@ -45,7 +45,7 @@ jobs:
       #     kubectl rollout status deployment/backend-api --timeout=120s
 
       # =========================================================================
-      # ПОДХОД 2: НОВЫЙ ДЕПЛОЙ ЧЕРЕЗ HELM CHARTS (Активный подход)
+      # ПОДХОД 2: ДЕПЛОЙ ЧЕРЕЗ HELM CHARTS
       # =========================================================================
       - name: Install Helm
         uses: azure/setup-helm@v4

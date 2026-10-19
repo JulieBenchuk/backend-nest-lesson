@@ -1,7 +1,8 @@
-name: Manual Deploy
+name: Deploy
 
 on:
-  workflow_dispatch:
+  push:
+    branches: [main]
 
 jobs:
   checks:
@@ -17,29 +18,20 @@ jobs:
     secrets:
       DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
 
-
   deploy:
-    # Это дает нам право читать аутпуты джобы build
-    needs: [build]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd /var/www/cluster
-            
-            # Берём имя образа из output предыдущего build job. И подставляем в .env взамен предыдущего значения DOCKER_IMAGE
-            sed -i "s|DOCKER_IMAGE=.*|DOCKER_IMAGE=${{ needs.build.outputs.image_sha }}|" .env
-            
-            # Скачиваем обновленный образ с Docker Hub 
-            docker compose pull backend
-            
-            # Перезапускаем только backend c новым DOCKER_IMAGE=username/backend:sha-a3f9c12 в .env на сервере
-            docker compose up -d --no-deps backend
+    needs: [ build ]
+    uses: ./.github/workflows/deploy-argocd.yml
+    with:
+      helm_path: HelmCharts/backend-api/values.yaml
+      image_name: ${{ needs.build.outputs.image_sha }}
+      branch: main
+      gitops_repo: your-org/your-gitops-repo
+      argocd_app_name: backend-api
+      argocd_server: ${{ vars.ARGOCD_SERVER }}
+    secrets:
+      gitops_token: ${{ secrets.GITOPS_TOKEN }}
+      argocd_auth_token: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+
 
   notify:
     needs: [checks, build, deploy]
