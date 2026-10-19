@@ -67,28 +67,9 @@ jobs:
           git checkout -b "$BRANCH_NAME"
           git add "${{ inputs.helm_path }}"
           git commit -m "feat(${{ inputs.argocd_app_name }}): update image to ${{ inputs.image_name }}"
-          git push origin "$BRANCH_NAME"
+          git push origin "$BRANCH_NAME" -f
 
-#      - name: Create and merge Pull Request
-#        run: |
-#          response=$(curl -sX POST \
-#            -H "Authorization: Bearer ${{ secrets.gitops_token }}" \
-#            -H "Accept: application/vnd.github.v3+json" \
-#            https://api.github.com/repos/${{ inputs.gitops_repo }}/pulls \
-#            -d "{
-#              \"title\": \"[${{ inputs.argocd_app_name }}] Update image to ${{ inputs.image_name }}\",
-#              \"body\": \"Automated update of image tag.\",
-#              \"head\": \"update-image-${{ github.run_id }}\",
-#              \"base\": \"${{ inputs.branch }}\"
-#            }")
-#
-#          PR_NUMBER=$(echo "$response" | python3 -c "import sys,json; print(json.load(sys.stdin)['number'])")
-#
-#          curl -sX PUT \
-#            -H "Authorization: Bearer ${{ secrets.gitops_token }}" \
-#            -H "Accept: application/vnd.github.v3+json" \
-#            https://api.github.com/repos/${{ inputs.gitops_repo }}/pulls/$PR_NUMBER/merge \
-#            -d '{"merge_method": "squash"}'
+
       - name: Create and merge Pull Request
         run: |
           # 1. Отправляем запрос на создание PR (Bearer заменен на token)
