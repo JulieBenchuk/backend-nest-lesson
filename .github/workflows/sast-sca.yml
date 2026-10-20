@@ -50,7 +50,7 @@ jobs:
             --exclude=dist \
             --exclude=build \
             --exclude=kubernetes \
-            --exclude=manifest \
+            --exclude=manifests \
             --exclude=helm \
             --exclude=workflows \
             --exclude=argocd \
