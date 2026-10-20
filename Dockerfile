@@ -25,6 +25,10 @@ COPY --from=builder /app/package.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 
+# Инструкция USER node переключает контекст на встроенного в образ node-alpine обычного пользователя node,
+# у которого нет административных прав.
+USER node
+
 EXPOSE 3000
 # важно использовать именно CMD - exec-форма, чтобы Node стал PID 1 и получал сигналы SIGTERM напрямую от Docker
 # (важно для корректного docker stop)
