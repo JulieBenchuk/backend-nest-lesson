@@ -6,6 +6,9 @@ on:
   workflow_call:
 
 jobs:
+  security-scan:
+    name: "Security scan"
+    uses: ./.github/workflows/sast-sca.yml
   test:
     runs-on: ${{ matrix.os }}
     # Главное — правильно сослаться на это имя:
